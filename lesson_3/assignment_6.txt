@@ -1,0 +1,18 @@
+#1: 
+  createdb theater
+  psql theater < theater_full.sql
+
+#2: Determine how many tickets have been sold
+  SELECT count(id) FROM tickets;
+
+#3: Determine how many -different- customers purchased tickets to at least one
+    event.
+  SELECT COUNT(DISTINCT customer_id) FROM tickets;
+
+#4: Determine the percentage of customers who have purchased a ticket to at least one
+    event (Round to 2 places).
+  - Find the number of unique customers who have purchased at least one ticket 
+  - Find the total number of customers
+  - Divide (purchased / total), multiply by 100, round to 2 places
+
+
