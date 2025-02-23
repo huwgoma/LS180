@@ -1,0 +1,66 @@
+#1 
+  -- psql 
+  \i films1.sql
+
+  1. The films1.sql file deletes the films table if it exists, then creates a new
+     table, films, with the columns title, year and genre; it then creates 3 new
+     entries into the films table.
+
+  2. The output of the command is as follows:
+      psql:films1.sql:1: NOTICE:  table "films" does not exist, skipping
+      DROP TABLE
+      CREATE TABLE
+      INSERT 0 1
+      INSERT 0 1
+      INSERT 0 1
+    Each line in the output corresponds to an action described above; dropping the
+    films table, creating a new films table, then inserting 3 new rows into the
+    films table.
+
+  3. The first line in films1.sql deletes the films table, if one already exists,
+     to prevent namespace clashing.
+
+#2 
+  SELECT * FROM films;
+
+#3 
+  SELECT * FROM films WHERE length(title) < 12; 
+
+#4 
+  ALTER TABLE films
+  ADD COLUMN director varchar(50),
+  ADD COLUMN duration integer;
+
+#5 
+  UPDATE films
+  SET director = 'John McTiernan', duration = '132'
+  WHERE title = 'Die Hard';
+
+  UPDATE films
+  SET director = 'Michael Curtiz', duration = '102'
+  WHERE title = 'Casablanca';
+
+  UPDATE films
+  SET director = 'Francis Ford Coppola', duration = '113'
+  WHERE title = 'The Conversation';
+
+#6 
+  INSERT INTO films (title, "year", genre, director, duration)
+  VALUES ('1984', 1956, 'scifi', 'Michael Anderson', 90),
+         ('Tinkey Tailor Soldier Spy', 2011, 'espionage', 'Tomas Alfredson', 127),
+         ('The Birdcage', 1996, 'comedy', 'Mike Nichols', 118);
+
+#7
+  SELECT title, extract(YEAR FROM now()) - "year" AS age
+  FROM films
+  ORDER BY age;
+
+#8
+  SELECT title, duration FROM films
+  WHERE duration > 120
+  ORDER BY duration DESC;
+
+#9
+  SELECT title FROM films
+  ORDER BY duration DESC
+  LIMIT 1;

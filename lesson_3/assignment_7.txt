@@ -1,0 +1,76 @@
+#1: 
+  createdb inventory
+  psql inventory < orders_products1.sql
+
+#2: 
+  ALTER TABLE orders 
+  ADD FOREIGN KEY(product_id) REFERENCES products;
+
+#3: 
+  -- Create products
+  INSERT INTO products (name)
+  VALUES ('small bolt'), ('large bolt');
+
+  -- Add orders
+  INSERT INTO orders (product_id, quantity)
+  VALUES (1, 10), (1, 25), (2, 15);
+
+#4: 
+  SELECT orders.quantity, products.name 
+  FROM orders 
+  JOIN products ON orders.product_id = products.id;
+
+#5: Can you insert a row into orders without a product_id? 
+  - Yes. NULL represents the absence of any value, while referential integrity 
+    ensures that if there is a value in a foreign key column, it must correspond
+    to an existing value in the referenced primary key column.
+  - Relationships can be optional; allowing NULL values into a foreign key column
+    allows a many-entity to exist without necessarily being linked to a one-entity.
+  
+  INSERT INTO orders (quantity)
+  VALUES (10);
+
+#6:
+  ALTER TABLE orders 
+  ALTER COLUMN product_id SET NOT NULL;
+
+  -- This statement will raise an error, since a NULL value currently exists in
+  -- orders and would therefore violate the NOT NULL constraint.
+
+#7: 
+  - Delete the NULL row 
+  - Add the NOT NULL constraint again.
+
+  DELETE FROM orders WHERE id = 4;
+
+  ALTER TABLE orders
+  ALTER COLUMN product_id SET NOT NULL;
+
+#8: 
+  CREATE TABLE reviews (
+    id serial PRIMARY KEY,
+    product_id integer REFERENCES products,
+    body text NOT NULL
+  );
+
+#9: 
+  INSERT INTO reviews (product_id, body)
+  VALUES (1, 'a little small'),
+         (1, 'very round!'),
+         (2, 'could have been smaller');
+
+#10: Does a foreign key constraint prevent NULL values from being stored in 
+     the column?
+  - This is **false** - a FOREIGN KEY constraint does not prevent NULL values from
+    being inserted into the foreign key column.
+  Why?
+  - Foreign keys enforce referential integrity, which states that if a value 
+    exists in a foreign key column, it must match an existing value in the referenced
+    primary key column.
+  - However, NULL represents the -absence- of any value, and therefore does not
+    violate referential integrity.
+  - If a relationship has a modality of 0 (ie. optional), allowing NULL values into
+    the foreign key column allows for some records to reference the primary key of
+    another record, and other records to exist independently.
+  - If the relationship is mandatory, it is advised to set a NOT NULL constraint on
+    the foreign key column.

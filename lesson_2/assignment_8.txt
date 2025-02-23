@@ -1,0 +1,52 @@
+#1 
+  createdb resident;
+
+#2 
+  -- psql
+  \i residents_with_data.sql
+
+#3: List the 10 states with the most rows in the people table in descending order.
+  - 10 states: LIMIT 10
+  - Most rows: Order by count(id), descending
+  - Group by state
+
+  SELECT state, count(id) FROM people
+  GROUP BY state
+  ORDER BY count(id) DESC LIMIT 10;
+
+#4: List each domain used in an email address, and how many people in the database
+    have an email containing that domain.
+    - descending order of domain popularity (ie. most-used first)
+
+    example: 
+    domain      count
+    gmail.com     200
+    hotmail.com   150
+    yahoo.com     100
+
+    -- Algorithm:
+    - Extract the domain from email addresses
+      - split email string on delimiter (@) and take the 2nd fragment
+    - select the extracted domain and row count for each domain (group by domain)
+    - order in descending order by domain row count
+
+    SELECT split_part(email, '@', 2) AS domain, count(id) AS usage
+    FROM people
+    GROUP BY domain
+    ORDER BY usage DESC;
+
+#5:
+  DELETE FROM people 
+  WHERE id = 3399;
+
+#6:
+  DELETE FROM people 
+  WHERE state = 'CA';
+
+#7:
+  UPDATE people
+  SET given_name = upper(given_name)
+  WHERE email LIKE '%teleworm.us%';
+
+#8: 
+  DELETE FROM people;

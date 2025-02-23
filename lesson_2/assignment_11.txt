@@ -1,0 +1,49 @@
+#1: Write an SQL statement that creates a new sequence called counter.
+  CREATE SEQUENCE counter;
+
+#2: Write an SQL Statement to retrieve the next value from counter.
+  SELECT NEXTVAL('counter');
+
+#3: 
+  DROP SEQUENCE counter;
+
+#4: Is it possible to create a sequence that only returns even numbers?
+  Yes; CREATE SEQUENCE allows the increment size and offset number to be defined
+  through the INCREMENT BY and MINVALUE parameters. 
+  - If you want to start the sequence at 0, you can specify a MINVALUE of 0.
+
+  CREATE SEQUENCE even
+  INCREMENT BY 2
+  MINVALUE 0;
+
+#5: 
+  CREATE TABLE regions (id serial PRIMARY KEY, name text, area integer);
+
+  This SQL statement will create a sequence named 'regions_id_seq'.
+  
+#6: Add an auto-incrementing integer primary key column to the films table.
+  - Create a sequence (films_id_seq)
+  - Add a new column to films (id integer default nextval(films_id_seq))
+  - Update all rows in films to set id = default 
+
+  CREATE SEQUENCE films_id_seq;
+
+  ALTER TABLE films
+  ADD COLUMN id integer PRIMARY KEY DEFAULT NEXTVAL('films_id_seq');
+  -- Automatically updates all row values
+
+#7: What error is raised if a row is updated to use an existing id value?
+  Error: Primary Key value (x) already exists
+  --
+  ERROR: duplicate key value violates constraint "films_pkey"
+  DETAIL: Key (id) = (1) already exists.
+
+#8: What error is raised if you add another primary key column to films?
+  Error: Each table can only have one primary key.
+  --
+  ERROR:  multiple primary keys for table "films" are not allowed
+
+#9: Write an SQL statement that modifies films to remove its PRIMARY KEY, while
+    preserving the id column and its values.
+  ALTER TABLE films
+  DROP CONSTRAINT films_pkey;

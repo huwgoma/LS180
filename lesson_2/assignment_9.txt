@@ -1,0 +1,81 @@
+#1: 
+  The result of using an operator on a NULL value is NULL. For example:
+  SELECT NULL = NULL will return NULL.
+
+#2: 
+  ALTER TABLE employees
+  ALTER COLUMN department SET DEFAULT 'unassigned';
+
+  UPDATE employees
+  SET department = 'unassigned'
+  WHERE department IS NULL;
+
+  ALTER TABLE employees
+  ALTER COLUMN department SET NOT NULL;
+
+#3: 
+  CREATE TABLE temperatures (
+    "date" date NOT NULL,
+    low int NOT NULL,
+    high int NOT NULL
+  );
+
+#4:
+  INSERT INTO temperatures ("date", low, high)
+  VALUES ('2016-03-01', 34, 43),
+         ('2016-03-02', 32, 44),
+         ('2016-03-03', 31, 47),
+         ('2016-03-04', 33, 42),
+         ('2016-03-05', 39, 46),
+         ('2016-03-06', 32, 43),
+         ('2016-03-07', 29, 32),
+         ('2016-03-08', 23, 31),
+         ('2016-03-09', 17, 28);
+
+#5: Determine the avg temperature for each day from March 2-8. Round each avg value
+    to one decimal place.
+  
+  SELECT date, round((low + high) / 2.0, 1) AS avg_temp
+  FROM temperatures
+  WHERE date BETWEEN '2016-03-02' AND '2016-03-08';
+  
+#6: 
+  ALTER TABLE temperatures
+  ADD COLUMN rainfall int DEFAULT 0;
+
+#7: The amount of rainfall per day can be calculated as 1mm for every 1.0 degrees
+    the average temperature goes above 35.
+    eg. If the average temperature is 36.5, the rainfall would be 1mm (1.5->1)
+    - Calculate the average temperature (low + high / 2)
+    - Subtract 35 from the average temperature.
+    - Only update the rows where the average temperature is actually above 35.
+
+    UPDATE temperatures
+    SET rainfall = (low + high) / 2 - 35
+    WHERE (low + high) / 2 > 35
+    ;
+
+#8: mm to inches (25.4 : 1)
+  - Modify the rainfall column to accept decimal values (6 digits, 3 decimals)
+  - Modify rainfall values by dividing each value by 25.4 (round to 3)
+
+  ALTER TABLE temperatures
+  ALTER COLUMN rainfall TYPE decimal(6, 3);
+
+  UPDATE temperatures
+  SET rainfall = round(rainfall / 25.4, 3);
+
+#9: 
+  ALTER TABLE temperatures
+  RENAME TO weather;
+
+#10: 
+  \d weather
+
+
+#11: 
+  SYNTAX: pg_dump <dbname> <options> > <filename>
+
+  pg_dump temps -t weather -f temps_backup.sql
+  -- or
+  pg_dump temps -t weather > temps_backup.sql
