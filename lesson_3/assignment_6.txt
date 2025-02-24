@@ -1,0 +1,87 @@
+#1: 
+  createdb theater
+  psql theater < theater_full.sql
+
+#2: 
+  SELECT COUNT(id) FROM tickets;
+
+#3:
+  SELECT COUNT(DISTINCT customer_id) FROM tickets;
+
+#4:
+  - Calculate the number of unique customers who have bought a ticket 
+    (ie. customers whose ID is in tickets)
+  - Calculate the total number of customers (ie. ID from customers)
+  - Divide p2w_customers / all_customers, multiply by 100, round to 2
+  How to join?
+  - LEFT JOIN (take all rows from customers)
+    - If a customer has multiple associated rows in tickets (ie. they bought 
+      multiple tickets), their ID will appear multiple times in the resulting
+      join table.
+    - Therefore, apply DISTINCT to both p2w_customers and all_customers.
+
+  SELECT 
+  ROUND(COUNT(DISTINCT customer_id) / COUNT(DISTINCT customers.id)::decimal * 100, 2) AS percent
+  FROM customers
+  LEFT JOIN tickets ON customers.id = tickets.customer_id;
+
+#5: Return the name of each event and how many tickets were sold for it,
+    from most to least popular.
+  - Select name from events
+  - Compute the number of rows in tickets with event_id = events.id (ie. the 
+    number of tickets sold for that event)
+  - Group by event name
+  - Order by popularity descending
+  Join Type?
+  - Inner is fine if every event has at least one corresponding ticket
+  - Otherwise, left join to get every event, even if no tickets were sold for it.
+
+  SELECT events.name, COUNT(tickets.event_id) AS popularity
+  FROM events
+  LEFT JOIN tickets ON events.id = tickets.event_id
+  GROUP BY events.name
+  ORDER BY popularity DESC;
+
+#6: Return the user_id, email address, and number of events for all customers 
+    that have purchased tickets to exactly 3 events.
+  - Select user id & email from customers
+  JOIN the tickets table
+  - Group by customer IDs; for each customer, count the number of unique event IDs
+    (ie. the number of unique events the customer has bought a ticket for)
+  - Filter results for count(distinct events) = 3
+
+  SELECT customers.id, customers.email, COUNT(DISTINCT tickets.event_id)
+  FROM customers JOIN tickets ON customers.id = tickets.customer_id
+  GROUP BY customers.id 
+  -- If a table's PRIMARY KEY is used in GROUP BY, other columns in that 
+  -- table do not need to be grouped/aggregated, since there will only ever 
+  -- be one row for each value.
+  HAVING COUNT(DISTINCT tickets.event_id) = 3
+  ORDER BY customers.id;
+  
+#7: Print a report of all tickets purchased by the customer with the email 
+    address of 'gennaro.rath@mcdermott.co'. Include the event name, starts_at, 
+    and the seat's section, row, and number.
+  - customers => Email address (Used to filter), customer_id
+  - events    => (event) name, starts_at, event_id
+  - tickets   => event_id, seat_id, customer_id
+  - sections  => (section) name, section_id  
+  - seats     => section_id, row, number, seat_id 
+
+  - Select events.name, events.start_at, 
+           sections.name, seats.row, seats.number
+    from events; 
+      join tickets on events.id = tickets.event_id;
+      join seats on tickets.seat_id = seats.id; 
+      join sections on seats.section_id = sections.id;
+      join customers on tickets.customer_id = customers.id
+    filter for customers.email = 'gennaro.rath@mcdermott.co'
+
+  SELECT events.name AS event_name, events.starts_at, 
+         sections.name AS section, seats.row, seats.number AS seat
+  FROM events
+  JOIN tickets ON events.id = tickets.event_id
+  JOIN seats ON seats.id = tickets.seat_id
+  JOIN sections ON sections.id = seats.section_id
+  JOIN customers ON customers.id = tickets.customer_id
+  WHERE customers.email = 'gennaro.rath@mcdermott.co';
