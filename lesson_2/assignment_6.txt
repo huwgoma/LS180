@@ -1,0 +1,107 @@
+https://launchschool.com/lessons/a1779fd2/assignments/4f4df8a4
+
+#1 - Write an SQL statement to create the following table (people):
+      name	age	occupation
+      Abby	34	biologist
+      Mu'nisah	26	NULL
+      Mirabelle	40	contractor
+    
+    CREATE TABLE people(
+      name varchar(200),
+      age int,
+      occupation varchar(200)
+    );
+
+#2 - Write an SQL statement to insert data into the table above.
+
+    INSERT INTO people (name, age, occupation)
+    VALUES ('Abby', 34, 'biologist'),
+           ('Mu''nisah', 26, NULL),
+           ('Mirabelle', 40, 'contractor');
+
+#3 - Write 3 SQL queries to retrieve the second row of the table above.
+
+    SELECT * FROM people 
+      WHERE name = 'Mu''nisah';
+      WHERE age = 26;
+      WHERE occupation IS NULL;
+
+#4 - Write an SQL statement to create a table (birds):
+      name	            length	    wingspan    	family    	extinct
+      Spotted Towhee	    21.6	      26.7	    Emberizidae	     f
+      American Robin	    25.5	      36.0      	Turdidae     	 f
+      Greater Koa Finch	  19.0      	24.0	    Fringillidae	   t
+      Carolina Parakeet	  33.0	      55.8	    Psittacidae	     t
+      Common Kestrel	    35.5	      73.5	     Falconidae	     f
+
+    CREATE TABLE birds (
+      name varchar(50),
+      length decimal(5, 1),
+      wingspan decimal(5, 1),
+      family varchar(50),
+      extinct boolean
+    )
+
+#5 - Insert data into the table above.
+    INSERT INTO birds (name, length, wingspan, family, extinct)
+    VALUES ('Spotted Towhee', 21.6, 26.7, 'Emberizidae', false),
+           ('American Robin', 25.5, 36.0, 'Turdidae', false),
+           ('Greater Koa Finch', 19.0, 24.0, 'Fringillidae', true),
+           ('Carolina Parakeet', 33.0, 55.8, 'Psittacidae', true),
+           ('Common Kestrel', 35.5, 73.5, 'Falconidae', false);
+
+#6 - Write an SQL statement that finds the names and families for all 
+     birds that are not extinct; order from longest to shortest (length).
+
+    SELECT name, family FROM birds 
+      WHERE extinct = false
+      ORDER BY length DESC;
+
+#7 - Write SQL statements to determine the average, minimum, and maximum
+     wingspan for the birds in the table.
+    
+    SELECT avg(wingspan), min(wingspan), max(wingspan) FROM birds;
+
+#8 - Create the table (menu_items) below:
+      item      prep_time   ingredient_cost   sales   menu_price
+      omelette  10          1.50              182     7.99
+      tacos     5           2.00              254     8.99
+      oatmeal   1           0.50              79      5.99
+
+    CREATE TABLE menu_items (
+      item varchar(50), 
+      prep_time integer,
+      ingredient_cost decimal(5, 2),
+      sales integer,
+      menu_price decimal(5, 2)
+    );
+
+#9 - Insert the data into the menu_items table.
+
+    INSERT INTO menu_items (item, prep_time, ingredient_cost, sales, menu_price)
+    VALUES ('omelette', 10, 1.50, 182, 7.99),
+           ('tacos', 5, 2.00, 254, 8.99),
+           ('oatmeal', 1, 0.50, 79, 5.99);
+
+#10 - Write an SQL query to determine which menu item is the most profitable,
+      based on the cost of its ingredients. Return the name of the item and 
+      its profit.
+
+    SELECT item, menu_price - ingredient_cost AS profit
+      FROM menu_items
+      ORDER BY profit DESC LIMIT 1;
+
+#11 - Write an SQL query to determine how profitable each item on the menu is,
+      based on the prep time. Assume the worker is paid $13 an hour. 
+      - Order the results by profit, descending.
+    Algorithm:
+    - Profit = Menu Price - Labor Cost - Ingredient Cost
+    - Labor  = 13.00 * round(prep_time::decimal / 60, 2)
+
+** Revisit
+
+    SELECT item, menu_price, ingredient_cost,
+      13.00 * round(prep_time::decimal / 60, 2) AS labor_cost,
+      menu_price - ingredient_cost - labor_cost AS profit
+    FROM menu_items
+      ORDER BY profit DESC; 

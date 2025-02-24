@@ -1,0 +1,25 @@
+#1
+  createdb films
+  psql films < films4.sql
+
+#2
+  INSERT INTO films(title, year, genre, director, duration)
+  VALUES ('Wayne''s World', 1992, 'comedy', 'Penelope Spheeris', 95),
+         ('Bourne Identity', 2002, 'espionage', 'Doug Liman', 118);
+
+#3
+  SELECT DISTINCT genre FROM films;
+
+#4: Write a SQL query that returns the same results as #3, without using DISTINCT.
+  SELECT genre FROM films GROUP BY genre;
+
+#5: Determine the average duration of all movies in the films table, rounded
+    to the nearest minute.
+  SELECT round(avg(duration)) FROM films;
+
+#6: Determine the average duration for each genre, rounded to the nearest minute.
+  SELECT genre, round(avg(duration)) FROM films GROUP BY genre;
+
+#7: Determine the average duration of movies for each decade, rounded to the 
+    nearest minute, listed in chronological order (eg. 1900->1910->1920->...)
+  

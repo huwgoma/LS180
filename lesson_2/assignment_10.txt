@@ -1,0 +1,118 @@
+#1: 
+  createdb films2
+  psql films2 < films2.sql
+
+#2: 
+  ALTER TABLE films
+  ALTER COLUMN title SET NOT NULL,
+  ALTER COLUMN year SET NOT NULL,
+  ALTER COLUMN genre SET NOT NULL,
+  ALTER COLUMN director SET NOT NULL,
+  ALTER COLUMN duration SET NOT NULL;
+
+#3: 
+  In the `nullable` column of the table schema displayed by \d films, the value
+  changes from nothing (NULL) to 'not nullable'.
+
+                          Table "public.films"
+    Column  |          Type          | Collation | Nullable | Default 
+  ----------+------------------------+-----------+----------+---------
+  title    | character varying(255) |           | not null | 
+
+#4:
+  ALTER TABLE films
+  ADD UNIQUE(title);
+  -- or
+  ADD CONSTRAINT unique_title UNIQUE(title); 
+
+#5:
+  The unique title constraint is represented as an index:
+  Indexes:
+    "films_title_key" UNIQUE CONSTRAINT, btree (title)
+
+#6:
+  ALTER TABLE films
+  DROP CONSTRAINT films_title_key --default
+  -- or 
+  DROP CONSTRAINT unique_title    --named
+
+#7: 
+  ALTER TABLE films
+  ADD CONSTRAINT non_empty_title CHECK(length(title) >= 1);
+
+#8: 
+  INSERT INTO films (title, year, genre, director, duration)
+  VALUES ('', 1997, 'Sci-fi', 'Russo', 120);
+
+  ERROR:  new row for relation "films" violates check constraint "non_empty_title"
+  DETAIL:  Failing row contains (, 1997, Sci-fi, Russo, 120).
+
+#9:
+  The CHECK constraint added in #7 is displayed under "Check constraints":
+  
+  Check constraints:
+    "non_empty_title" CHECK (length(title::text) >= 1)
+
+#10:
+  ALTER TABLE films
+  DROP CONSTRAINT non_empty_title;
+
+#11:
+  ALTER TABLE films
+  ADD CONSTRAINT year_between_1900_2100 CHECK(year BETWEEN 1900 AND 2100);
+
+#12:
+  The constraint added in #11 is displayed as another check constraint:
+  
+  Check constraints:
+    "year_between_1900_2100" CHECK (year >= 1900 AND year <= 2100)
+
+#13: 
+  ALTER TABLE films
+  ADD CONSTRAINT director_name 
+  CHECK(length(director) >= 3 AND position(' ' in director) > 0);
+
+#14: 
+  The constraint added in #13 is displayed as another check constraint.
+  
+  Check constraints:
+    "director_name" CHECK (length(director::text) >= 3 AND POSITION((' '::text) IN (director)) > 0)
+  ...
+
+#15:
+  UPDATE films
+  SET director = 'Johnny' WHERE title = 'Die Hard';
+
+  ERROR:  new row for relation "films" violates check constraint "director_name"
+  DETAIL:  Failing row contains (Die Hard, 1988, action, Johnny, 132).
+
+#16: List 3 ways that you can alter the schema to restrict the accepted values
+     in a column:
+  1: Setting the column's data type restricts the accepted class of values.
+  2: Setting constraints on the column further restricts which values are considered
+     valid for that column.
+  3: Setting a NOT NULL constraint on the column prevents any NULL values from 
+     being entered into the column.
+  
+#17: Is it possible to define a DEFAULT value for a column that will be considered
+     invalid by a constraint?
+  
+  Yes - PostgreSQL does not disallow DEFAULT values that conflict with one or more
+  constraints at the time of table creation, only when the constraint is tested.
+  For example:
+
+  CREATE TABLE null_default_table (
+    default_null_but_not_null text DEFAULT NULL NOT NULL,
+    some_other_column text
+  );
+
+  INSERT INTO null_default_table (some_other_column)
+  VALUES ('Hello')
+  -- NULL will be inserted into `default_null_but_not_null`, since no value was
+  -- given for it; however, the NOT NULL constraint will raise an error.
+
+  ERROR:  null value in column "default_null_but_not_null" of relation "null_table" violates not-null constraint
+  DETAIL:  Failing row contains (null, Hello).
+
+#18: 
+  Constraints on a table are listed in the output of the \d command.
