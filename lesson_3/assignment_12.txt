@@ -1,0 +1,87 @@
+#1: Add the NOT NULL and ON DELETE CASCADE constraints to the books_categories
+    join table.
+
+  ALTER TABLE books_categories
+  DROP CONSTRAINT books_categories_book_id_fkey,
+  DROP CONSTRAINT books_categories_category_id_fkey,
+
+  ADD FOREIGN KEY(book_id) REFERENCES books ON DELETE CASCADE,
+  ADD FOREIGN KEY(category_id) REFERENCES categories ON DELETE CASCADE,
+  
+  ALTER book_id SET NOT NULL,
+  ALTER category_id SET NOT NULL;
+
+
+
+#2: Write a SQL statement that:
+  - Returns the ID and author of each book, along with an aggregated string of
+    all categories the book belongs to.
+
+  SELECT books.id, books.author, string_agg(categories.name, ', ') AS categories
+  FROM books
+    JOIN books_categories AS bc ON books.id = bc.book_id
+    JOIN categories             ON categories.id = bc.category_id
+  GROUP BY books.id
+  ORDER BY books.id;
+
+
+
+#3: Write SQL statements to insert the following new books. What considerations do you
+    need to take to ensure this data is accepted by the database?
+  (Data):
+  Author            Title           Categories
+  Lynn Sherr        Sally Ride      Biography, Nonfiction, Space Exploration
+  Charlotte Bronte  Jane Eyre       Fiction, Classics
+  Meeru Dhalwala    Vij'statement   Cookbook, Nonfiction, South Asia
+
+  - Insert into books (title and author)
+    - Alter the data type of title and author to be unlimited text
+  - Insert into categories to create any missing categories 
+    (Space Exploration, Cookbook, South Asia)
+  - Insert into books_categories to create the corresponding relationships
+
+  ALTER TABLE books
+  ALTER title TYPE text,
+  ALTER author TYPE text;
+
+  INSERT INTO books (title, author)
+  VALUES ('Sally Ride: America''s First Woman in Space', 'Lynn Sherr'),
+  ('Jane Eyre', 'Charlotte Bronte'),
+  ('Vij''s: Elegant and Inspired Indian Cuisine', 'Meeru Dhalwala and Vikram Vij');
+
+  INSERT INTO categories (name)
+  VALUES ('Space Exploration'),  ('Cookbook'), ('South Asia');
+
+  INSERT INTO books_categories(book_id, category_id)
+  VALUES (4, 5), (4, 1), (4, 7),
+         (5, 2), (5, 4),
+         (6, 8), (6, 1), (6, 9);
+
+
+
+#4: Write an SQL statement to ensure that all rows in books_categories have a unique
+    combination of book_id and category_id. 
+  - ie. Ensure that a book cannot have the same category twice, and that a category
+        cannot have the same book twice.
+
+  ALTER TABLE books_categories
+  ADD UNIQUE(book_id, category_id);
+
+
+
+#5: Write an SQL statement that returns the name of each category, 
+    the number of books in that category, and an aggregated comma-separated string 
+    of the book titles in that category.
+
+  - SELECT category name, COUNT(books.id), STRING_AGG(books title) 
+  - FROM categories, JOIN books_categories, JOIN books 
+  - GROUP BY category name
+  - ORDER BY category name 
+
+  SELECT categories.name, 
+    COUNT(books.id) AS book_count, STRING_AGG(books.title, ', ') AS book_titles
+  FROM categories 
+    JOIN books_categories AS bc ON categories.id = bc.category_id
+    JOIN books                  ON books.id = bc.book_id
+  GROUP BY categories.name 
+  ORDER BY categories.name;
