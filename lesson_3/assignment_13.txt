@@ -1,0 +1,96 @@
+#1: 
+  createdb theater
+  psql theater < films7.sql
+
+
+
+#2: Write an SQL statement to create a join table that allows a film to have 
+    multiple directors, and directors to have multiple films.
+    (ID, film_id, director_id)
+
+    CREATE TABLE directors_films (
+      id serial PRIMARY KEY,
+      director_id integer NOT NULL REFERENCES directors ON DELETE CASCADE,
+      film_id integer NOT NULL REFERENCES films ON DELETE CASCADE,
+      UNIQUE(director_id, film_id) 
+    );
+
+
+
+#3: Insert data into the new join table to represent the existing one-to-many
+    relationships.
+
+  INSERT INTO directors_films(director_id, film_id)
+  VALUES (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6),
+         (3, 7), (7, 8), (8, 9), (4, 10);
+
+  -- You can also achieve the same result by SELECTing the director_id and id
+  -- from films, then INSERTing them into directors_films in the same query:  
+  
+  INSERT INTO directors_films (director_id, film_id)
+  (SELECT director_id, id FROM films);
+
+
+
+#4: Write an SQL statement to remove any redundant columns from films.
+    -- ie. director_id, since it is now represented in the join table
+  
+  ALTER TABLE films 
+  DROP COLUMN director_id;
+
+
+
+#5: Write an SQL statement that returns the title of each film and the name of the
+    respective director.
+    - Order by film title.
+
+  SELECT films.title, directors.name 
+  FROM films
+    JOIN directors_films AS df ON films.id = df.film_id
+    JOIN directors             ON directors.id = df.director_id
+  ORDER BY films.title;
+
+
+
+#6: Insert data for the following films:
+  Film            Year      Genre       Duration        Directors
+  Fargo           1996      comedy        98            Joel Coen
+  No Country      2007      western       122           Joel Coen, Ethan Coen
+  for Old Men
+  Sin City        2005      crime         124           Frank Miller, Robert Rodriguez
+  Spy Kids        2001      scifi         88            Robert Rodriguez
+
+  - Insert films (title, year, genre, duration)
+  - Insert directors (Joel Coen, Ethan Coen, Frank Miller, Robert Rodriguez)
+  - Insert into directors_films to create relationships b/w directors and films 
+
+  INSERT INTO films (title, year, genre, duration)
+  VALUES ('Fargo', 1996, 'comedy', 98),
+         ('No Country for Old Men', 2007, 'western', 122),
+         ('Sin City', 2005, 'crime', 124),
+         ('Spy Kids', 2001, 'scifi', 88);
+
+  INSERT INTO directors (name)
+  VALUES ('Joel Coen'), ('Ethan Coen'), 
+         ('Frank Miller'), ('Robert Rodriguez');
+
+  INSERT INTO directors_films(film_id, director_id)
+  VALUES (11, 9),
+         (12, 9), (12, 10),
+         (13, 11), (13, 12),
+         (14, 12);
+
+
+
+#7: Write an SQL statement that determines how many films each director has
+    directed. Sort the results by the number of films (descending), and then
+    by name (alphabetically).
+    - Assume each director has at least one film.
+
+  - Group by director names (ids?). For each director, count how many times their
+    id appears in directors_films.
+
+  SELECT directors.name AS director, COUNT(director_id) AS film_count
+  FROM directors JOIN directors_films ON directors.id = directors_films.director_id
+  GROUP BY director
+  ORDER BY film_count DESC, director;
