@@ -20,6 +20,34 @@
 #6: Determine the average duration for each genre, rounded to the nearest minute.
   SELECT genre, round(avg(duration)) FROM films GROUP BY genre;
 
+=================== ??? =========================
+
 #7: Determine the average duration of movies for each decade, rounded to the 
     nearest minute, listed in chronological order (eg. 1900->1910->1920->...)
   
+  SELECT 
+  ROUND(AVG(duration)) AS avg_duration,
+  year / 10 * 10 AS decade
+  FROM films
+  GROUP BY decade
+  ORDER BY decade;
+
+#8: 
+  SELECT * FROM films WHERE director LIKE 'John%';
+
+#9: 
+  SELECT genre, COUNT(id) FROM films
+  GROUP BY genre
+  ORDER BY COUNT DESC;
+
+#10: 
+  SELECT year / 10 * 10 AS decade, genre, string_agg(films, ', ') AS film_list
+  FROM films
+  GROUP BY decade, genre
+  ORDER BY decade;
+
+#11:
+  SELECT genre, SUM(duration) AS total_duration
+  FROM films 
+  GROUP BY genre
+  ORDER BY total_duration;
